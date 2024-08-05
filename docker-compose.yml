@@ -1,0 +1,87 @@
+networks:
+  devdockerstack:
+    driver: ${NETWORKS_DRIVER}
+
+services:
+### MySQL ##############################################
+  mysql:
+    build:
+      context: ./mysql
+      args:
+        - MYSQL_VERSION=${MYSQL_VERSION}
+    platform: linux/x86_64
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - TZ=${PROJECT_TIMEZONE}
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - ${DATA_PATH_HOST}/mysql:/var/lib/mysql:delegated
+      - ${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
+      - ${MYSQL_OTHER_SHELL_SCRIPTS}:/usr/local/bin/other-mysql-script
+    networks:
+      - devdockerstack
+
+### RabbitMQ ###########################################
+  rabbitmq:
+    build:
+      context: ./rabbitmq
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=${RABBITMQ_ERLANG_COOKIE}
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      - RABBITMQ_DEFAULT_VHOST=${RABBITMQ_DEFAULT_VHOST}
+      - TZ=${PROJECT_TIMEZONE}
+    ports:
+      - "${RABBITMQ_NODE_HOST_PORT}:5672"
+      - "${RABBITMQ_MANAGEMENT_HTTP_HOST_PORT}:15672"
+      - "${RABBITMQ_MANAGEMENT_HTTPS_HOST_PORT}:15671"
+    volumes:
+      - ${DATA_PATH_HOST}/rabbitmq:/var/lib/rabbitmq:delegated
+    networks:
+      - devdockerstack
+
+### Redis ################################################
+  redis:
+    build:
+      context: ./redis
+    environment:
+      - TZ=${PROJECT_TIMEZONE}
+    volumes:
+      - ${DATA_PATH_HOST}/redis:/data
+    ports:
+      - "${REDIS_PORT}:6379"
+    networks:
+      - devdockerstack
+
+### Maildev ################################################
+  maildev:
+    image: maildev/maildev
+    environment:
+      - TZ=${PROJECT_TIMEZONE}
+      - MAILDEV_WEB_PORT=1080
+      - MAILDEV_SMTP_PORT=1025
+    ports:
+      - "${MAILDEV_WEB_PORT}:1080"
+      - "${MAILDEV_SMTP_PORT}:1025"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+    networks:
+      - devdockerstack
+
+### ElasticSearch ################################################
+  elastic:
+    image: elasticsearch:8.14.0
+    environment:
+      - TZ=${PROJECT_TIMEZONE}
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - discovery.type=single-node
+      - xpack.security.http.ssl.enabled=false
+      - xpack.license.self_generated.type=trial
+      - ES_JAVA_OPTS=-Xms2g -Xmx2g
+    ports:
+      - "${ELASTIC_HTTP_PORT}:9200"
+    networks:
+      - devdockerstack

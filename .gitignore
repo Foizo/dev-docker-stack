@@ -1,0 +1,7 @@
+/.idea
+/data/*
+!/data/.gitkeep
+/logs/*
+!/logs/.gitkeep
+/mysql/other-shell-scripts/*
+!/mysql/other-shell-scripts/.gitkeep
