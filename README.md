@@ -1,7 +1,7 @@
 # DEV Docker Stack
 
 ### Components
-1. MySQL:latest 
+1. MySQL:8.4.0
 2. RabbitMQ:alpine
 3. Redis:latest
 4. Maildev
@@ -55,9 +55,9 @@ stop.sh
 mysql-run-scripts.sh
 ```
 
-```
-example: create user and database 01-init-example-db.sh
+- example: create file 01-init-example-db.sh in `./mysql/other-shell-scripts/` with content and run mysql-run-scripts.sh
 
+```
 #!/usr/bin/env bash
 set -e
 
@@ -69,6 +69,6 @@ mysql -v -uroot -p${MYSQL_ROOT_PASSWORD} <<-EOSQL
   FLUSH PRIVILEGES;
 EOSQL
 
-# import data to database
+# if you want import data into database
 zcat /usr/local/bin/other-mysql-script/example.sql.gz | mysql -v -uroot -p${MYSQL_ROOT_PASSWORD} example
 ```
