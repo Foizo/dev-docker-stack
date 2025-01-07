@@ -50,7 +50,6 @@ stop.sh
 ```
 
 #### Supported commands with running services
-- Run mysql shell script in dir `./mysql/other-shell-scripts/`
 ```
 mysql-run-scripts.sh
 ```
