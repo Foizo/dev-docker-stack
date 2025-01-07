@@ -68,6 +68,6 @@ mysql -v -uroot -p${MYSQL_ROOT_PASSWORD} <<-EOSQL
   FLUSH PRIVILEGES;
 EOSQL
 
-# if you want import data into database
+# if you want import data into database, copy dump file to ./mysql/other-shell-scripts/ folder
 zcat /usr/local/bin/other-mysql-script/example.sql.gz | mysql -v -uroot -p${MYSQL_ROOT_PASSWORD} example
 ```
