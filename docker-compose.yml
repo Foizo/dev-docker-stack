@@ -1,5 +1,7 @@
+#version: '3.5'
+
 networks:
-  devdockerstack:
+  boardv2:
     driver: ${NETWORKS_DRIVER}
 
 services:
@@ -20,7 +22,25 @@ services:
       - ${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
       - ${MYSQL_OTHER_SHELL_SCRIPTS}:/usr/local/bin/other-mysql-script
     networks:
-      - devdockerstack
+      - boardv2
+
+### MariaDB ##############################################
+  mariadb:
+    build:
+      context: ./mariadb
+      args:
+        MARIADB_VERSION: ${MARIADB_VERSION}
+        TZ: ${PROJECT_TIMEZONE}
+    platform: linux/x86_64
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+    ports:
+      - "${MARIADB_PORT}:3306"
+    volumes:
+      - ${DATA_PATH_HOST}/mariadb:/var/lib/mysql:delegated
+      - ${MARIADB_OTHER_SHELL_SCRIPTS}:/usr/local/bin/other-mysql-script
+    networks:
+      - boardv2
 
 ### RabbitMQ ###########################################
   rabbitmq:
@@ -39,7 +59,7 @@ services:
     volumes:
       - ${DATA_PATH_HOST}/rabbitmq:/var/lib/rabbitmq:delegated
     networks:
-      - devdockerstack
+      - boardv2
 
 ### Redis ################################################
   redis:
@@ -52,7 +72,7 @@ services:
     ports:
       - "${REDIS_PORT}:6379"
     networks:
-      - devdockerstack
+      - boardv2
 
 ### Maildev ################################################
   maildev:
@@ -69,7 +89,7 @@ services:
       options:
         max-size: "1m"
     networks:
-      - devdockerstack
+      - boardv2
 
 ### ElasticSearch ################################################
   elastic:
@@ -84,4 +104,4 @@ services:
     ports:
       - "${ELASTIC_HTTP_PORT}:9200"
     networks:
-      - devdockerstack
+      - boardv2
